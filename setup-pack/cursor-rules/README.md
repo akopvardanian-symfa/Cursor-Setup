@@ -1,11 +1,11 @@
-# Универсальные правила Cursor для MCP и интеграций
+# General Cursor rules for MCP and integrations
 
-Правила в этой папке — **общие** для любых проектов с Confluence/Jira и MCP. В них нет упоминаний конкретных проектов, спейсов или page ID.
+The rules in this folder are **generic** for any project using Confluence/Jira and MCP. They do not mention specific projects, spaces, or page IDs.
 
-## Как использовать
+## How to use
 
-Скопируй файлы из `cursor-rules/` в папку **`.cursor/rules/`** своего проекта:
+Copy files from `cursor-rules/` into your project’s **`.cursor/rules/`** folder:
 
-- `mcp-integrations.mdc` — когда в проекте используются MCP (mcp-atlassian), Confluence и Jira.
+- `mcp-integrations.mdc` — when the project uses MCP (mcp-atlassian), Confluence, and Jira.
 
-После копирования Cursor будет применять эти правила в этом проекте. При необходимости дополни правила своими (например, контекст спейсов или маппинг Epic → страницы) в отдельных файлах в `.cursor/rules/`.
+After copying, Cursor will apply these rules in that project. Add your own rules if needed (e.g. space context or Epic → page mapping) in separate files under `.cursor/rules/`.

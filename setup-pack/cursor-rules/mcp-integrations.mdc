@@ -1,59 +1,67 @@
 ---
-description: MCP и интеграции (Confluence, Jira) — универсальные правила
+description: MCP and integrations (Confluence, Jira) — general rules
 alwaysApply: true
 ---
 
-# MCP и интеграции: Confluence, Jira
+# MCP and integrations: Confluence, Jira
 
-Универсальные правила для проектов, где используются MCP (mcp-atlassian), Confluence и Jira. Без привязки к конкретным проектам или спейсам.
+General rules for projects using MCP (mcp-atlassian), Confluence, and Jira. Not tied to specific projects or spaces.
 
-## Главные принципы
+## Main principles
 
-- **Локально-first:** черновики и итерации вести в локальных файлах (Markdown, шаблоны); Confluence обновлять только по явному запросу пользователя («опубликовать», «синхронизировать», «обновить в Confluence»).
-- **Confluence — источник истины** для уже опубликованного: перед записью в Confluence учитывать текущее состояние страницы (версия, ручные правки, комментарии).
-- **Экономия токенов:** тяжёлые операции (вложения, массовые чтения/записи) по возможности выполнять **скриптами** из папки `Technical/` (REST API), MCP — для поиска, разовой проверки и публикации контента.
+- **Locally-first:** keep drafts and iterations in local files (Markdown, templates); update Confluence only when the user explicitly asks (“publish”, “sync”, “update in Confluence”).
+- **Confluence is the source of truth** for published content: before writing to Confluence, consider the current state of the page (version, manual edits, comments).
+- **Token economy:** prefer **scripts** from the `Technical/` folder (REST API) for heavy operations (attachments, bulk read/write); use MCP for search, one-off checks, and publishing content.
 
-## Когда что использовать
+## When to use what
 
-| Задача | Предпочтительно |
-|--------|------------------|
-| Редактировать текст документации | Локальные `.md` в репозитории |
-| Узнать актуальное состояние страницы в Confluence | MCP `confluence_get_page` (разово) |
-| Найти страницу / разобраться со структурой | MCP поиск (`confluence_search` / CQL) |
-| Опубликовать локальные правки в Confluence | MCP: `confluence_get_page` → `confluence_get_comments` → `confluence_update_page` |
-| Вложения (загрузка, встраивание картинки, удаление) | Скрипты из `Technical/` (см. ниже) |
+| Task | Prefer |
+|------|--------|
+| Edit documentation text | Local `.md` in the repo |
+| Get current state of a Confluence page | MCP `confluence_get_page` (once) |
+| Find a page / understand structure | MCP search (`confluence_search` / CQL) |
+| Publish local edits to Confluence | MCP: `confluence_get_page` → `confluence_get_comments` → **if the doc has images** (`![](path)` or `![alt](path)`): run `Technical/upload_confluence_attachment.py <page_id> <path>` for each image first → then `confluence_update_page` |
+| Attachments (upload, embed image, delete) | Scripts from `Technical/` (see below) |
 
 ## MCP (mcp-atlassian)
 
-- Использовать **mcp-atlassian** по умолчанию для Confluence и Jira (поиск, страницы, задачи, комментарии, метки, доски, спринты и т.д.).
-- Контент страниц Confluence создавать в **Markdown** (MCP поддерживает markdown при записи).
+- Use **mcp-atlassian** by default for Confluence and Jira (search, pages, issues, comments, labels, boards, sprints, etc.).
+- Write Confluence page content in **Markdown** (MCP supports markdown on write).
 
-## Перед обновлением страницы в Confluence
+## Before updating a Confluence page
 
-- Один раз получить текущее содержимое через MCP (`confluence_get_page` по `page_id`), чтобы не перезаписать ручные правки.
-- При необходимости запросить комментарии к странице (`confluence_get_comments`) и учесть обсуждения в комментариях.
+- Fetch current content once via MCP (`confluence_get_page` by `page_id`) so you don’t overwrite manual edits.
+- If needed, fetch page comments (`confluence_get_comments`) and take discussions in comments into account.
 
-## Конфликты: сообщать пользователю
+## Conflicts: inform the user
 
-- **Confluence:** перед правкой страницы по запросу пользователя при возможности проверить комментарии. Если в комментариях есть альтернативные формулировки или несогласие с текущей версией — кратко сообщить пользователю.
-- **Jira:** при изменении полей тикета по запросу — при возможности проверить недавние изменения (changelog) или комментарии. Если недавно меняли те же поля или в комментариях есть противоречащая информация — сообщить о возможном конфликте.
+- **Confluence:** before editing a page at the user’s request, check comments when possible. If comments contain alternative wording or disagreement with the current version — briefly inform the user.
+- **Jira:** when changing issue fields at the user’s request — when possible check recent changes (changelog) or comments. If the same fields were recently changed or comments contradict — report a possible conflict.
 
-Не блокировать выполнение запроса, но явно перечислить найденные конфликты.
+Do not block the request, but clearly list any conflicts found.
 
-## Вложения Confluence
+## Confluence attachments
 
-По возможности управлять вложениями **скриптами** из папки `Technical/`, чтобы не тянуть большой контент через MCP.
+**Rule: when publishing a document that contains images — upload images first with the script.**  
+If you are updating a Confluence page from a local file (.md, README, etc.) and that file contains image references like `![](path)` or `![alt](path)` with local paths — **before** calling `confluence_update_page`, run for each image:  
+`Technical/upload_confluence_attachment.py <page_id> <path_to_image>`  
+(Path is relative to repo root or to the folder containing the document.) Then update the page body. Otherwise only the text will appear in Confluence and image links will be broken.
 
-- **Список вложений:** MCP `confluence_get_page` (часто возвращает список в `metadata.attachments`) или UI страницы → Attachments.
-- **Загрузить файл во вложения:**  
+**Use case: images when working with Confluence via MCP.**  
+When reading or editing Confluence page content via MCP, **MCP cannot insert images or attachments onto a page**. Scripts in the `Technical/` folder are run by Cursor: when the user asks to insert an image on a Confluence page or says they can’t see an image on the page — run `Technical/confluence_upload_and_embed_image.py` (or `upload_confluence_attachment.py` if needed) with the appropriate `page_id` and file path.
+
+Prefer managing attachments with **scripts** from the `Technical/` folder so large content doesn’t go through MCP.
+
+- **List attachments:** MCP `confluence_get_page` (often returns a list in `metadata.attachments`) or page UI → Attachments.
+- **Upload file as attachment:**  
   `Technical/upload_confluence_attachment.py <page_id> <path_to_file>`
-- **Загрузить и встроить картинку в страницу:**  
+- **Upload and embed image in page:**  
   `Technical/confluence_upload_and_embed_image.py <page_id> <path_to_image> [--anchor "..." --alt "..." --width N]`
-- **Удалить вложение** — только по явной просьбе пользователя:  
+- **Delete attachment** — only when the user explicitly asks:  
   `Technical/delete_confluence_attachment.py <page_id> <filename1> [filename2 ...]`
 
-Для работы скриптов нужен `Technical/.env` с `CONFLUENCE_URL`, `CONFLUENCE_USERNAME`, `CONFLUENCE_API_TOKEN`. Если `.env` нет — предложить создать по шаблону (например из setup-pack `env.example`).
+Scripts need `Technical/.env` with `CONFLUENCE_URL`, `CONFLUENCE_USERNAME`, `CONFLUENCE_API_TOKEN`. If `.env` is missing — suggest creating it from a template (e.g. setup-pack `env.example`).
 
-## Контекст проекта (Confluence / Jira)
+## Project context (Confluence / Jira)
 
-Если в проекте есть отдельный файл с контекстом (например `Technical/CONFLUENCE_CONTEXT.md` или аналог) — использовать его для актуальных `space_key`, `page_id`, структуры спейсов. При необходимости напомнить пользователю обновить этот файл под свой инстанс.
+If the project has a dedicated context file (e.g. `Technical/CONFLUENCE_CONTEXT.md` or similar) — use it for current `space_key`, `page_id`, and space structure. If needed, remind the user to update this file for their instance.

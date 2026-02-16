@@ -1,262 +1,283 @@
-# Гайд по настройке Cursor для бизнес-системного аналитика
+# Cursor Setup Guide for Business Analysts
 
-В гайде описано, как установить Cursor, настроить интеграции (Confluence, Jira, Google Drive, Canva и др.), как организовать папки и документацию и какие правила ведения проектов использовать, чтобы всё было понятно с первого раза.
+**Repository:** [github.com/akopvardanian-symfa/Cursor-Setup](https://github.com/akopvardanian-symfa/Cursor-Setup) — paste this link into the Agent chat and ask it to clone the repo and follow the docs inside; no need to download anything manually.
 
----
-
-## Оглавление
-
-1. [Установка Cursor](#1-установка-cursor)
-2. [Интеграции и внешние связи (MCP и API)](#2-интеграции-и-внешние-связи-mcp-и-api)
-3. [Правила Cursor (`.cursor/rules`)](#3-правила-cursor-cursorrules)
-4. [Структура папок и документации по типам проектов](#4-структура-папок-и-документации-по-типам-проектов)
-5. [Правила ведения документации](#5-правила-ведения-документации)
+This guide explains how to install Cursor, set up integrations (Confluence, Jira, Google Drive, Canva, etc.), and organize folders and documentation. **Core idea:** you do as little manually as possible — all requests (integration setup, configs, scripts) are handled through Cursor in chat. To enable this, grant Cursor terminal and file access once during setup (see “Initial setup after install”).
 
 ---
 
-## 1. Установка Cursor
+## Table of contents
 
-### Что такое Cursor
-
-**Cursor** — это IDE на базе VS Code с встроенной поддержкой AI (чат, автодополнение, агент). Для системного аналитика он удобен тем, что можно держать документацию в одном месте, править её локально и при необходимости синхронизировать с Confluence/Jira через MCP или скрипты.
-
-### Шаги установки
-
-1. **Скачать Cursor**  
-   Официальный сайт: [cursor.com](https://cursor.com). Скачайте установщик под вашу ОС (macOS, Windows, Linux).
-
-2. **Установить**  
-   Запустите установщик и следуйте инструкциям. Cursor ставится как отдельное приложение (не поверх VS Code).
-
-3. **Войти в аккаунт**  
-   При первом запуске потребуется войти (или создать аккаунт). Подписка может быть Free или Pro — от этого зависит лимит запросов к AI и часть возможностей.
-
-4. **Создать и открыть папку проекта**
-
-   Cursor работает в контексте папки — это ваш проект (документация, скрипты, конфиги). Если папки проекта ещё нет, создайте её:
-
-   **a) Создайте папку для проекта:**
-   - **Где создать:** удобное место на диске, где храните рабочие проекты. Например:
-     - macOS/Linux: `~/Projects/` или `~/Documents/Work Projects/`
-     - Windows: `C:\Users\ВашеИмя\Projects\` или `D:\Work\`
-   - **Как назвать:** по названию проекта или клиента для быстрой ориентации. Примеры:
-     - `My Project` (если один основной проект)
-     - `Client A Documentation` (если документация по клиенту)
-     - `Team Knowledge Base` (если общая база знаний команды)
-   - **Создать:** в Finder (macOS), Проводнике (Windows) или командой `mkdir "Название проекта"` в терминале.
-
-   **b) Откройте папку в Cursor:**
-   - В Cursor: **File → Open Folder** (или **Cmd+O** на macOS, **Ctrl+O** на Windows).
-   - Выберите созданную папку и нажмите **Open** / **Выбрать папку**.
-   - Cursor откроет проект: слева появится дерево файлов (пока пустое), справа — редактор.
-
-   **Зачем это нужно:** все правила Cursor (`.cursor/rules`), конфиги, документация и скрипты будут лежать в этой папке. Когда вы откроете папку в Cursor, AI будет работать в контексте вашего проекта (видеть файлы, применять правила). Один раз создали папку проекта — всегда открываете её в Cursor при работе над этим проектом.
-
-### Настройка сразу после установки: чтобы Cursor имел доступ к инструментам
-
-Чтобы Cursor мог настраивать интеграции по команде (через промпт из setup-pack) и не упираться в отказы доступа:
-
-1. **Всегда открывай проект папкой**  
-   **File → Open Folder** — выбери папку проекта (или папку с setup-pack). Cursor должен работать в контексте этой папки: тогда он видит файлы, создаёт и правит конфиги в проекте и в `~/.cursor/`. Если открыть один файл вместо папки — доступа к остальным файлам и к настройке MCP не будет.
-
-2. **Разрешай выполнение команд в терминале**  
-   Когда Cursor предложит выполнить команду (установка uv, `pip install`, `npx` и т.д.) — разреши. Без этого MCP-серверы (mcp-atlassian, Canva и др.) и скрипты не заработают. При первом запросе Cursor может спросить разрешение на запуск терминала — нужно согласиться.
-
-3. **Доступ к конфигам**  
-   Конфиг MCP хранится в `~/.cursor/mcp.json`. Обычно Cursor имеет доступ к домашней директории и может его читать и записывать. Если на macOS появляются ошибки вида «permission denied» при записи в `~/.cursor/` или при запуске uv/npx — в **System Settings → Privacy & Security → Full Disk Access** добавь Cursor. В большинстве случаев достаточно прав по умолчанию.
-
-4. **Порядок действий**  
-   Установил Cursor → создал/открыл папку проекта → положил в неё setup-pack (или открыл папку с setup-pack) → вставил в чат промпт из `00_START_HERE.md`. Дальше настройку интеграций выполняет Cursor (создание конфигов, установка uv при необходимости); тебе остаётся только создать API-токен Atlassian, отдать данные в чат и перезапустить MCP.
-
-После этого переходи к разделу 2 и настраивай интеграции через setup-pack.
+1. [Installing Cursor](#1-installing-cursor)
+2. [Integrations and external connections (MCP and API)](#2-integrations-and-external-connections-mcp-and-api)
+3. [Cursor rules (`.cursor/rules`)](#3-cursor-rules-cursorrules)
+4. [Folder structure and documentation by project type](#4-folder-structure-and-documentation-by-project-type)
+5. [Documentation guidelines](#5-documentation-guidelines)
 
 ---
 
-## 2. Интеграции и внешние связи (MCP и API)
+## 1. Installing Cursor
 
-Часто используются такие связи:
+### What is Cursor
 
-| Инструмент        | Назначение                    | Как подключается                          |
-|-------------------|-------------------------------|-------------------------------------------|
-| **Confluence**    | Документация, страницы       | MCP (mcp-atlassian) + REST скрипты |
-| **Jira**          | Задачи, эпики, доски         | MCP (mcp-atlassian)       |
-| **Google Drive**  | Файлы, листы, документы      | Скрипты по API (например `drive_api.py`); опционально MCP  |
-| **Canva**         | Презентации, дизайн          | MCP (mcp-remote → Canva)                   |
+**Cursor** is a VS Code–based IDE with built-in AI (chat, autocomplete, agent). For business analysts it’s useful because you can keep documentation in one place, edit it locally, and sync with Confluence/Jira via MCP or scripts when needed.
 
-**Что такое MCP:** MCP (Model Context Protocol) — это стандарт подключения внешних инструментов к AI в Cursor. Проще: через MCP Cursor может напрямую читать/обновлять данные в сервисах (например, Confluence, Jira, Canva) из чата, без ручного копирования между окнами.
+### Installation steps
 
-**Архитектура интеграций:**
+1. **Download Cursor**  
+   Official site: [cursor.com](https://cursor.com). Download the installer for your OS (macOS, Windows, Linux).
 
-![Cursor Integration Architecture](cursor-integrations-slide.png)
+2. **Install**  
+   Run the installer and follow the steps. Cursor installs as a separate app (not on top of VS Code).
+
+3. **Sign in**  
+   On first launch you’ll need to sign in (or create an account). Free or Pro subscription affects AI request limits and some features.
+
+4. **Create and open a project folder**
+
+   Cursor works in the context of a folder — your project (docs, scripts, configs). If you don’t have one yet, create it:
+
+   *(Screenshot: cursor-welcome-open-clone.png — see [repo](https://github.com/akopvardanian-symfa/Cursor-Setup).)*  
+   *On Cursor launch, click “Open project” to open a folder.*
+
+   **a) Create a project folder:**
+   - **Where:** somewhere you keep work projects, e.g.:
+     - macOS/Linux: `~/Projects/` or `~/Documents/Work Projects/`
+     - Windows: `C:\Users\YourName\Projects\` or `D:\Work\`
+   - **Name:** project or client name for quick recognition. Examples:
+     - `My Project` (single main project)
+     - `Client A Documentation` (client-specific docs)
+     - `Team Knowledge Base` (shared team knowledge)
+   - **Create:** in Finder (macOS), File Explorer (Windows), or with `mkdir "Project name"` in the terminal.
+
+   *(Screenshot: cursor-new-folder-dialog.png — see repo.)*  
+   *New Folder dialog: enter the folder name and click Create.*
+
+   **b) Open the folder in Cursor:**
+   - In Cursor: **File → Open Folder** (or **Cmd+O** on macOS, **Ctrl+O** on Windows).
+   - In the dialog, choose the folder (e.g. from your home directory or “Cursor Projects”) and click **Open**.
+
+   *(Screenshot: cursor-open-folder-finder.png — see repo.)*  
+   *Open dialog: go to the folder and click Open.*
+
+   *(Screenshot: cursor-open-folder-empty.png — see repo.)*  
+   *Select the folder and click Open.*
+
+### Initial setup after install: full access for Cursor
+
+So Cursor can do everything on its own (configs, installing uv, pip, writing to `~/.cursor/`), do the following **once** after first install:
+
+1. **Allow running commands in the terminal**  
+   Without this, Cursor can’t install uv, run `pip install`, or start MCP servers. Do either:
+
+   **Option A — when first asked in chat:** when the Agent suggests running a command, a “Run” / “Allow” button or prompt will appear — click **Run** (or **Allow**) so the command runs. If offered “Add to allowlist”, you can add it so similar commands run without asking later.
+
+   **Option B — enable once in settings:**
+   - Open settings: **Cursor → Settings** (macOS) or **File → Preferences → Cursor Settings** (Windows/Linux), or press **Cmd+,** (macOS) / **Ctrl+,** (Windows/Linux) and select **Cursor Settings** (not “Preferences”) in the left panel.
+
+   *(Screenshot: cursor-settings-menu.png — see repo.)*  
+   *macOS: Cursor menu → Settings… → Cursor Settings.*
+
+   - In the left menu go to **Agents** → **Auto-Run**.
+
+   *(Screenshot: cursor-agents-autorun.png — see repo.)*  
+   *Agents → Auto-Run: set Auto-Run Mode → Run Everything.*
+   - Set **Auto-Run Mode** to **Run Everything** — the Agent will run all commands and actions without prompting.
+   - Save (settings usually save automatically).
+
+   After this, Cursor can run terminal commands by itself; little manual action is needed.
+
+2. **Open a folder and paste the repo link and prompt in chat**  
+   **File → Open Folder** — open any folder (e.g. an empty project folder). Then open **Agent**: **Cmd+I** (macOS) or **Ctrl+I** (Windows/Linux) and paste the **repository link** and **prompt** (copy in full):
+
+   *(Screenshot: cursor-agent-chat.png — see repo.)*  
+   *Paste the link and prompt in the input field.*
+
+   **Repository link:**  
+   `https://github.com/akopvardanian-symfa/Cursor-Setup`
+
+   **Prompt:**  
+   *Clone this repository into the current folder and follow the docs inside (run all steps from `setup-pack/00_START_HERE.md`).*
+
+   The Agent will clone the repo (if the folder is empty) and run the setup steps. When it first suggests a terminal command, click **Run** / **Allow** (see step 1).
+
+3. **Config access (macOS)**  
+   MCP config lives in `~/.cursor/mcp.json`. If you get “permission denied” when writing to `~/.cursor/` or when running uv/npx — add Cursor in **System Settings → Privacy & Security → Full Disk Access**. Then Cursor can read and write configs and run commands without restriction. On Windows/Linux, default permissions are usually enough.
+
+**Summary:** allow terminal commands (step 1) → open a folder in Cursor → paste the repo link and prompt in **Agent** (step 2). The Agent will clone the repo (if the folder is empty), open `setup-pack/00_START_HERE.md`, and walk you through integration setup with minimal manual steps.
 
 ---
 
-### Быстрая настройка: setup-pack + один промпт
+## 2. Integrations and external connections (MCP and API)
 
-**Самый простой способ** — использовать **setup-pack**: шаблоны + один главный промпт. Cursor сам спросит, какие интеграции нужны, и настроит их.
+Common connections:
 
-**Как использовать:**
+| Tool           | Purpose                     | How it’s connected                    |
+|----------------|-----------------------------|----------------------------------------|
+| **Confluence** | Docs, pages                 | MCP (mcp-atlassian) + REST scripts    |
+| **Jira**      | Issues, epics, boards       | MCP (mcp-atlassian)                   |
+| **Google Drive** | Files, sheets, documents | API scripts (e.g. `drive_api.py`); optional MCP |
+| **Canva**      | Presentations, design       | MCP (mcp-remote → Canva)              |
 
-1. **Скачай setup-pack**  
-   Скопируй папку **`setup-pack`** из репозитория с гайдом или получи архив от того, кто раздаёт гайд. Если репозитория нет — попроси у коллег папку `setup-pack` (в ней должны быть `00_START_HERE.md`, `mcp.json.template`, `env.example`, `cursor-rules/`).
+**What is MCP:** MCP (Model Context Protocol) is a standard for connecting external tools to AI in Cursor. In practice: via MCP, Cursor can read and update data in services (e.g. Confluence, Jira, Canva) from chat, without copying between apps by hand.
 
-2. **Распакуй в проект или открой отдельно**  
-   Вариант А: положи `setup-pack` в корень своей рабочей папки (`MyProject/setup-pack/`) и открой папку проекта (**File → Open Folder** → `MyProject`).  
-   Вариант Б: открой папку `setup-pack` напрямую (**File → Open Folder** → `setup-pack`).  
-   **Важно:** если открыл только setup-pack — настройка пройдёт в ней; для повседневной работы потом открывай свою рабочую папку (ту, где документация и контент). Правила из `cursor-rules/` копируй в `.cursor/rules/` именно этой рабочей папки.
+**Integration architecture:**
 
-3. **Вставь главный промпт в Cursor**  
-   Открой файл **`00_START_HERE.md`** из setup-pack, скопируй **весь** промпт (от «Ты помогаешь настроить…» до «…нужны уточнения») и вставь в **Composer** (Cmd+I / Ctrl+I) или **Agent**. Не используй обычный чат (Chat): только Composer/Agent могут создавать файлы и запускать команды в терминале. Cursor спросит, какие интеграции нужны (Confluence/Jira, Google Drive, Canva). Для Confluence+Jira Cursor проверит наличие [uv](https://docs.astral.sh/uv/) и при необходимости выполнит установку (`curl … | sh` или `brew install uv`). Если после установки uv Cursor пишет «uv: command not found» — перезапусти Cursor и повтори шаг с промптом или попроси продолжить настройку. Затем создаст конфиги (`~/.cursor/mcp.json`, при наличии `Technical/` — файл `.env`), при необходимости предложит сгенерировать скрипты Confluence по промпту из **`PROMPT_technical_scripts.md`** (в папку `Technical/` проекта; на каждом компьютере для скриптов нужен Python и `pip install -r Technical/requirements.txt`) и универсальные правила из **`setup-pack/cursor-rules/`** в `.cursor/rules/`, и выдаст чек-лист.
+*(Diagram: cursor-integrations-slide.png — see [repo](https://github.com/akopvardanian-symfa/Cursor-Setup).)*
 
-4. **Доделай вручную: API-ключ Atlassian и подстановка данных**  
-   Cursor уже создал конфиги с плейсхолдерами. Остаётся создать API-токен в Atlassian и попросить Cursor подставить данные в конфиги.
+---
 
-   **4.1. Создать API-ключ в Atlassian**
+### Quick setup: setup-pack + one prompt
 
-   - Открой в браузере: **[Atlassian → Управление аккаунтом → Безопасность → API-токены](https://id.atlassian.com/manage-profile/security/api-tokens)**  
-     (или: зайди на [id.atlassian.com](https://id.atlassian.com) → войди в аккаунт → **Profile** / **Профиль** → **Security** / **Безопасность** → **Create and manage API tokens** / **Создание и управление API-токенами**.)
-   - Если кнопки создания токена нет или доступ запрещён — в компании могут быть ограничены API-токены; обратись к администратору Atlassian или работай без интеграции Confluence/Jira из Cursor.
-   - Нажми **Create API token** / **Создать API-токен**.
-   - В поле **Label** введи название, например: `Cursor MCP` или `Confluence Jira`.
-   - Нажми **Create** / **Создать**.
-   - **Сразу скопируй токен** — он показывается один раз. Сохрани его в надёжное место (менеджер паролей или временно в блокнот). Если закроешь страницу без копирования — токен придётся создавать заново.
+**Easiest path** — use the **setup-pack**: templates plus one prompt. Cursor will ask which integrations you want and configure them.
 
-   **4.2. Подставить данные в конфиги через Cursor**
+**How to use:** do the steps in **“Initial setup after install”** (steps 1 and 2): allow terminal → open folder → paste repo link and prompt in Agent.
 
-   - Подготовь три значения:
-     - **URL компании Atlassian** — адрес вашего Confluence или Jira в браузере без лишнего пути, например: `https://mycompany.atlassian.net` (для Confluence часто используется тот же домен: `https://mycompany.atlassian.net/wiki` — для MCP обычно указывают базовый `https://mycompany.atlassian.net`).
-     - **Email** — тот же адрес, под которым вы входите в Atlassian (логин).
-     - **API-токен** — тот, что только что скопировал.
-   - Открой чат **Composer** (Cmd+I / Ctrl+I) или **Agent** в Cursor и напиши, например:
+**What happens next:** Cursor will ask which integrations you need (Confluence/Jira, Google Drive, Canva). For Confluence+Jira it will check [uv](https://docs.astral.sh/uv/) and install it if needed; if you see “uv: command not found” after install — restart Cursor and ask to continue setup. It will then create configs (`~/.cursor/mcp.json`, and `.env` if you have `Technical/`), optionally offer Confluence scripts (prompt in **`PROMPT_technical_scripts.md`**; scripts need Python and `pip install -r Technical/requirements.txt`) and rules from **`setup-pack/cursor-rules/`** into `.cursor/rules/`, and give you a checklist.
 
-     > Обнови конфиги MCP и Technical: подставь эти данные в `~/.cursor/mcp.json` и, если есть папка Technical, в `Technical/.env`.  
+**If you chose Google Drive or Canva — Node.js check**  
+   These integrations need **Node.js** (the `npx` command). The Agent may check this itself. If it didn’t ask about Node or you see something like `npx: command not found`, **paste this in the Agent chat at this step** (after choosing integrations, before or after Drive/Canva setup):
+
+   **Prompt (copy and paste into chat):**  
+   *Check if Node.js is installed (run `npx --version`). If not — tell me how to install it for my OS and run the install in the terminal. This is needed for MCP Google Drive and Canva.*
+
+   After installing Node, restart Cursor if needed and ask the Agent to continue setup.
+
+**Manual step: Atlassian API token and config values**  
+   Cursor will have created configs with placeholders. You still need to create an API token in Atlassian and ask Cursor to fill in the config.
+
+   **1. Create an API token in Atlassian**
+
+   - In your browser open: **[Atlassian → Account settings → Security → API tokens](https://id.atlassian.com/manage-profile/security/api-tokens)**  
+     (or go to [id.atlassian.com](https://id.atlassian.com) → sign in → **Profile** → **Security** → **Create and manage API tokens**.)
+   - If the create-token button is missing or access is restricted — your org may limit API tokens; ask your Atlassian admin or work without Confluence/Jira in Cursor.
+   - Click **Create API token**.
+   - In **Label** enter a name, e.g. `Cursor MCP` or `Confluence Jira`.
+   - Click **Create**.
+   - **Copy the token immediately** — it’s shown only once. Store it safely (password manager or temporary note). If you leave the page without copying, you’ll need to create a new token.
+
+   **2. Fill configs via Cursor**
+
+   - Have these three values ready:
+     - **Atlassian site URL** — your Confluence or Jira base URL, e.g. `https://mycompany.atlassian.net` (Confluence often uses the same domain, e.g. `https://mycompany.atlassian.net/wiki` — for MCP use the base `https://mycompany.atlassian.net`).
+     - **Email** — the same address you use to sign in to Atlassian.
+     - **API token** — the one you just copied.
+   - Open **Agent** in Cursor (Cmd+I / Ctrl+I) and write something like:
+
+     > Update MCP and Technical configs: put these values into `~/.cursor/mcp.json` and, if there’s a Technical folder, into `Technical/.env`.  
      > URL: https://mycompany.atlassian.net  
      > Email: my.email@company.com  
-     > API-токен: скопированный_токен_сюда
+     > API token: paste_your_token_here
 
-     Вставляй **свои** URL, email и токен (не оставляй пример «скопированный_токен_сюда»), без лишних пробелов в начале и конце строк. Cursor обновит `~/.cursor/mcp.json` (блок `mcp-atlassian`) и при наличии папки `Technical/` — файл `Technical/.env`.  
-   - После подстановки перезапусти MCP: **Settings → Features → MCP → Restart Servers**. Если в настройках не находишь этот раздел — перезапусти приложение Cursor целиком.  
-   - Если при создании или обновлении конфигов появилась ошибка доступа к файлам («permission denied») — см. раздел **«Настройка сразу после установки»**, пункт «Доступ к конфигам».
+     Use **your** URL, email, and token (don’t leave the example “paste_your_token_here”), and avoid leading/trailing spaces. Cursor will update `~/.cursor/mcp.json` (the `mcp-atlassian` block) and, if present, `Technical/.env`.  
+   - After that, restart MCP: **Settings → Features → MCP → Restart Servers**. If you can’t find that section, restart Cursor entirely.  
+   - If you get file access errors (“permission denied”) when creating or updating configs — see **“Initial setup after install”**, step “Config access”.
 
-   **4.3. Проверка**  
-   В **Settings → MCP** серверы должны быть зелёными. В чате спроси: «Найди в Jira открытые задачи» или «Покажи страницу Confluence [название]» — если ответ пришёл, интеграция работает.
+   **3. Verify**  
+   In **Settings → MCP** servers should be green. In chat try: “Find open Jira issues” or “Show Confluence page [name]” — if you get a reply, the integration works.
 
-**Готово.** Интеграции настроены.
-
----
+**Done.** Integrations are set up.
 
 ---
 
-**Справочно — откуда взять MCP и API:** [mcp-atlassian (GitHub)](https://github.com/sooperset/mcp-atlassian) · [Confluence REST API](https://developer.atlassian.com/cloud/confluence/rest/v2/) · [Google Drive API v3](https://developers.google.com/drive/api/reference/rest/v3) · [Canva MCP](https://mcp.canva.com/mcp)
+---
+
+**Reference — where to get MCP and API:** [mcp-atlassian (GitHub)](https://github.com/sooperset/mcp-atlassian) · [Confluence REST API](https://developer.atlassian.com/cloud/confluence/rest/v2/) · [Google Drive API v3](https://developers.google.com/drive/api/reference/rest/v3) · [Canva MCP](https://mcp.canva.com/mcp)
 
 ---
 
-### 2.1. Контекст Confluence в проекте (space keys, page IDs)
+### 2.1. Confluence context in the project (space keys, page IDs)
 
-Чтобы AI и скрипты знали, куда писать и откуда читать, в проектах заводится **контекстный файл**:
+So the AI and scripts know where to read and write, projects use a **context file**:
 
-- В папке `Technical/` создают файл **`CONFLUENCE_CONTEXT.md`** с базовым URL, ключами спейсов, page ID ключевых страниц и ссылками на Confluence. При смене инстанса или страниц файл обновляют.
-- Page ID конкретных страниц можно дополнительно зафиксировать в правилах или в `Technical/README.md`.
+- In the `Technical/` folder, create **`CONFLUENCE_CONTEXT.md`** with base URL, space keys, page IDs of key pages, and links to Confluence. Update it when the instance or pages change.
+- You can also record page IDs in rules or in `Technical/README.md`.
 
-Рекомендация: в любом проекте, где есть Confluence, завести один такой файл (или раздел в README) с базовым URL, спейсами и ключевыми page ID.
-
----
-
-## 3. Правила Cursor (`.cursor/rules`)
-
-Правила — это файлы в папке **`.cursor/rules/`** с расширением **`.mdc`**. Они подсказывают AI, как вести себя в этом проекте: какой MCP использовать, что не редактировать, как оформлять документы.
-
-### Формат файла правила
-
-В начале файла — YAML frontmatter:
-
-```yaml
----
-description: Краткое описание правила (видно в списке правил)
-alwaysApply: true   # применять всегда в этом проекте
-globs: "SI Source Material/**"   # опционально: только для указанных путей
----
-```
-
-Дальше идёт текст в Markdown: заголовки, списки, таблицы.
-
-### Правила из setup-pack
-
-В **setup-pack** в папке **`cursor-rules/`** лежит одно универсальное правило — его можно скопировать в `.cursor/rules/` своего проекта:
-
-| Файл в setup-pack       | Описание |
-|-------------------------|----------|
-| **mcp-integrations.mdc** | MCP и интеграции (Confluence, Jira): локально-first, Confluence как источник истины, когда использовать MCP, когда скрипты из `Technical/`, проверка конфликтов (комментарии, changelog), вложения через скрипты, контекст проекта (CONFLUENCE_CONTEXT.md). Без привязки к конкретным спейсам или проектам. |
-
-Скопируй файлы из `setup-pack/cursor-rules/` в **`.cursor/rules/`** той папки, которую ты будешь открывать в Cursor для повседневной работы (документация, контент). Если сейчас открыт только setup-pack — создай папку `.cursor/rules/` в своей рабочей папке проекта и скопируй туда; иначе правила не будут применяться, когда откроешь другой каталог.
-
-**Как попросить Cursor создать или дополнить правила**
-
-Вместо ручного создания файлов можно дать задание в чате (Composer или Agent). Примеры формулировок:
-
-- **Правила для Confluence/Jira:**  
-  *«Создай папку `.cursor/rules/`, скопируй в неё правило из `setup-pack/cursor-rules/mcp-integrations.mdc` (или создай правило для MCP и Confluence/Jira по этому образцу)».*
-
-- **Папка «только чтение»:**  
-  *«Добавь правило: папка `Source Material/` (или `Исходники/`) — только чтение, не редактировать. Итоговый контент в папке `Documentation/` (или укажи свою). Сохрани в `.cursor/rules/` с globs на эту папку».*
-
-- **Стиль презентаций:**  
-  *«Добавь правило в `.cursor/rules/`: стандарт оформления презентаций — шрифты Object Sans / Inter, цвета и стиль нашей команды, чек-лист перед финализацией. Опиши в .mdc».*
-
-Cursor создаст или обновит файлы в `.cursor/rules/`; при необходимости уточни пути папок или названия под свой проект.
+Recommendation: in any project that uses Confluence, have one such file (or a section in README) with base URL, spaces, and key page IDs.
 
 ---
 
-## 4. Структура папок и документации по типам проектов
+## 3. Cursor rules (`.cursor/rules`)
 
-Ниже — типовые структуры проектов. Их можно использовать как шаблон.
+Rules are files in **`.cursor/rules/`** with extension **`.mdc`**. They tell the AI how to behave in this project: which MCP to use, what not to edit, how to format docs.
 
-### 4.1. Проект с документацией и Confluence
+### Rules from setup-pack
+
+In **setup-pack**, the **`cursor-rules/`** folder contains one general rule — you can copy it into `.cursor/rules/` of your project:
+
+| File in setup-pack     | Description |
+|------------------------|-------------|
+| **mcp-integrations.mdc** | MCP and integrations (Confluence, Jira): locally-first, Confluence as source of truth, when to use MCP vs scripts from `Technical/`, conflict checks (comments, changelog), attachments via scripts, project context (CONFLUENCE_CONTEXT.md). Not tied to specific spaces or projects. |
+
+Copy files from `setup-pack/cursor-rules/` into **`.cursor/rules/`** of the folder you actually open in Cursor for day-to-day work (docs, content). If you only have the setup-pack open — create `.cursor/rules/` in your main project folder and copy there; otherwise the rules won’t apply when you open another folder.
+
+**Asking Cursor to create or extend rules**
+
+Instead of creating files by hand, you can ask **Agent**. Example prompts:
+
+- **Rules for Confluence/Jira:**  
+  *“Create the `.cursor/rules/` folder, copy into it the rule from `setup-pack/cursor-rules/mcp-integrations.mdc` (or create a rule for MCP and Confluence/Jira from that template).”*
+
+- **Read-only folder:**  
+  *“Add a rule: folder `Source Material/` (or `Source Materials/`) is read-only, do not edit. Final content lives in `Documentation/` (or specify yours). Save under `.cursor/rules/` with globs for that folder.”*
+
+- **Presentation style:**  
+  *“Add a rule in `.cursor/rules/`: presentation standard — fonts Object Sans / Inter, team colors and style, pre-final checklist. Describe in .mdc.”*
+
+Cursor will create or update files in `.cursor/rules/`; adjust paths or names for your project if needed.
+
+---
+
+## 4. Folder structure and documentation by project type
+
+Below are typical project structures. Use them as templates.
+
+### 4.1. Project with documentation and Confluence
 
 ```
 Project/
 ├── .cursor/
-│   └── rules/                 # Правила для Cursor (MCP, Confluence и т.д.)
-├── Documentation/             # Документация: обзоры, спецификации, отчёты
+│   └── rules/                 # Cursor rules (MCP, Confluence, etc.)
+├── Documentation/             # Docs: overviews, specs, reports
 │   ├── Overview.md
 │   └── ...
-├── Source Materials/         # Исходники (read-only): расшифровки, заметки, входящие доки
+├── Source Materials/          # Read-only: transcripts, notes, incoming docs
 │   └── ...
-├── Resources/                 # Ресурсы, которые не меняются: шаблоны, справочники
+├── Resources/                 # Unchanging: templates, references
 │   └── ...
-├── Graphics/                  # Графики, диаграммы, картинки для документов
+├── Graphics/                  # Diagrams, images for docs
 │   └── ...
-└── Technical/                 # Всё техническое: скрипты Confluence, .env, README
+└── Technical/                 # Scripts, Confluence, .env, README
     ├── README.md
     ├── .env
     ├── upload_confluence_attachment.py
     └── ...
 ```
 
-- **Documentation** — рабочие документы, которые правишь и при необходимости публикуешь в Confluence.  
-- **Source Materials** — только чтение (расшифровки, заметки, входящие материалы); итоговый контент — в Documentation.  
-- **Resources** — только чтение (шаблоны, эталоны).  
-- **Graphics** — картинки для вставки в документы и в Confluence; скрипты загрузки — в `Technical/`.  
-- **Technical** — конфиги, скрипты, описание, как публиковать с картинками.
+- **Documentation** — working docs you edit and optionally publish to Confluence.  
+- **Source Materials** — read-only (transcripts, notes, incoming material); final content goes in Documentation.  
+- **Resources** — read-only (templates, references).  
+- **Graphics** — images for docs and Confluence; upload scripts live in `Technical/`.  
+- **Technical** — configs, scripts, and instructions for publishing with images.
 
 ---
 
-### 4.2. Проект с обзором бизнеса и процессами
+### 4.2. Project with business overview and processes
 
 ```
 BusinessDoc/
-├── Business_Overview_and_Processes_Documentation.md   # Итоговый документ
+├── Business_Overview_and_Processes_Documentation.md   # Main artifact
 ├── Source Material/
 │   ├── Transcript_*.txt
 │   └── ...
 └── .git
 ```
 
-- Один основной артефакт — большой markdown-документ. Исходники в `Source Material/` — только для справки. Можно добавить правило source-material.mdc.
+- One main artifact — a large Markdown doc. Sources in `Source Material/` are for reference only. You can add a source-material rule.
 
 ---
 
-### 4.3. Проект с фазами MVP и исходниками
+### 4.3. Project with MVP phases and source materials
 
 ```
 MVPProject/
@@ -271,59 +292,52 @@ MVPProject/
 └── Source Materials MVP phase 2/
 ```
 
-- Документация по фазам в отдельных папках; исходные материалы (встречи, доки) — в соответствующих «Source Materials» папках. Удобно завести README в корне и при необходимости правила на «Source Materials» как read-only.
+- Docs per phase in separate folders; source material (meetings, docs) in the matching “Source Materials” folders. Handy to have a root README and, if needed, rules marking “Source Materials” as read-only.
 
 ---
 
-### 4.4. Утилитарный проект (скрипты + данные)
+### 4.4. Utility project (scripts + data)
 
-- Скрипты (например транскрипция, конвертация), `requirements.txt`, папка с исходными файлами и результатами. Правила Cursor опциональны.  
-- Справочные материалы (доки, примеры) — при необходимости README и правило по стилю или структуре.
-
----
-
-## 5. Правила ведения документации
-
-### Бизнес-процесс работы с документацией
-
-```
-  Исходники              Локальная работа         Проверка              Публикация
-  (read-only)            (черновики в .md)        (комментарии)         (по запросу)
-
-  ┌──────────┐      ┌──────────┐      ┌──────────┐      ┌──────────┐
-  │ Встречи, │ ───▶ │ Правки и │ ───▶ │ Проверить│ ───▶ │ Confluence│
-  │ заметки, │      │ дополн.  │      │ страницу │      │ + Jira   │
-  │ доки     │      │ в .md    │      │ и коммент.│     │ (синк)   │
-  └──────────┘      └──────────┘      └──────────┘      └──────────┘
-```
-
-**Кратко:** исходники только читаем → правим локально → перед публикацией проверяем Confluence → публикуем по запросу → держим Jira и Confluence в синхронизации.
+- Scripts (e.g. transcription, conversion), `requirements.txt`, folder for input files and results. Cursor rules are optional.  
+- Reference material (docs, examples) — add a README and optional style/structure rule.
 
 ---
 
-Сводка правил, которые повторяются в проектах:
+## 5. Documentation guidelines
 
-### 5.1. Локально-first vs источник истины в Confluence
+### Documentation workflow
 
-- **Локально-first:** черновики и правки делаются в репозитории (в `.md` файлах). Confluence обновляется только по явному запросу («опубликовать», «синхронизировать»).
-- **Источник истины опубликованного:** Confluence. Перед обновлением страницы в Confluence всегда один раз получить текущее содержимое (MCP `confluence_get_page`) и при необходимости комментарии (`confluence_get_comments`), чтобы не перезаписать ручные правки.
+*(Diagram: business-process-documentation.png — see [repo](https://github.com/akopvardanian-symfa/Cursor-Setup).)*
 
-### 5.2. Source Material — только чтение
+**In short:** sources are read-only → edit locally → before publishing check Confluence → publish on request → keep Jira and Confluence in sync.
 
-- Папки с расшифровками, заметками, входящими доками — **не редактировать** и не удалять без явного запроса.  
-- Итоговый контент живёт в рабочих папках (SI/, DI/, Documentation/, MVP phase 1/2 и т.д.) и при необходимости в Confluence.
+---
 
-### 5.3. Конфликты: сообщать пользователю
+Summary of rules that repeat across projects:
 
-- Перед правкой страницы в Confluence проверять комментарии. Если есть обсуждение того же блока или альтернативные формулировки — сообщить пользователю и не перезаписывать без подтверждения.
-- Аналогично для Jira: при изменении полей проверять changelog/комментарии и сообщать о возможных конфликтах.
+### 5.1. Locally-first vs Confluence as source of truth
 
-### 5.4. Вложения Confluence
+- **Locally-first:** drafts and edits live in the repo (in `.md` files). Confluence is updated only when you explicitly ask (“publish”, “sync”).
+- **Source of truth for published content:** Confluence. Before updating a page in Confluence, always fetch current content once (MCP `confluence_get_page`) and comments if needed (`confluence_get_comments`), so you don’t overwrite manual edits.
 
-- Список/загрузка/вставка в текст/удаление — предпочтительно через **скрипты** из `Technical/`, а не через MCP, чтобы не тянуть большие объёмы в чат. Команды описать в README или в `Technical/README.md`.  
-- **Важно:** скрипты — это Python. На каждом компьютере, где их запускают, нужны установленный [Python](https://www.python.org/downloads/) и зависимости: `pip install -r Technical/requirements.txt`. Без Python скрипты не работают. Если Python не ставить — вложения в Confluence загружают вручную через веб-интерфейс.
+### 5.2. Source Material — read-only
 
-### 5.5. Синхронизация Jira и Confluence (если применимо)
+- Folders with transcripts, notes, incoming docs — **do not edit** or delete unless explicitly asked.  
+- Final content lives in working folders (SI/, DI/, Documentation/, MVP phase 1/2, etc.) and, when relevant, in Confluence.
 
-- В страницах инициатив в Confluence — таблица экшн-айтемов с колонкой **Jira** (ссылки на задачи). При создании новой задачи в Jira по инициативе — добавить в таблицу в Confluence строку с ссылкой на задачу. Маппинг Epic → Confluence page ID хранить в правилах или в CONFLUENCE_CONTEXT.
+### 5.3. Conflicts: inform the user
 
+- Before editing a Confluence page, check comments. If the same block is under discussion or there are alternative wordings — tell the user and don’t overwrite without confirmation.
+- Same for Jira: when changing issue fields, check changelog/comments and report possible conflicts.
+
+### 5.4. Confluence attachments
+
+- Listing, uploading, embedding in body, deleting — prefer **scripts** from `Technical/` over MCP so you don’t pull large data into chat. Document commands in README or `Technical/README.md`.  
+- **Important:** scripts require Python. On every machine that runs them you need [Python](https://www.python.org/downloads/) and: `pip install -r Technical/requirements.txt`. Without Python the scripts don’t run. If you skip Python — upload Confluence attachments manually in the web UI.
+
+**Use case: images when reading and working with Confluence via MCP**  
+When working with Confluence page content via MCP (search, read, update), **MCP cannot insert images or attachments onto a page**. So in `Technical/` there is a dedicated script (`confluence_upload_and_embed_image.py`) that Cursor runs automatically when the user asks to insert an image on a Confluence page or says they can’t see an image on the page. The user only needs to ask (“insert this image on page …”, “image doesn’t show on the page”); the agent fills in the right `page_id` and file path and runs the script from `Technical/`.
+
+### 5.5. Syncing Jira and Confluence (when applicable)
+
+- On initiative pages in Confluence there is a table of action items with a **Jira** column (links to issues). When creating a new Jira issue for an initiative, add a row to that table in Confluence with a link to the issue. Keep the Epic → Confluence page ID mapping in rules or in CONFLUENCE_CONTEXT.

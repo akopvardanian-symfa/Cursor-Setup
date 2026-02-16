@@ -1,33 +1,32 @@
-# Скрипты для Confluence (примеры)
+# Confluence scripts (reference)
 
-**Предпочтительно:** не копировать готовые скрипты, а попросить Cursor сгенерировать их у себя. Вставь в чат промпт из **`PROMPT_technical_scripts.md`** (в корне setup-pack) — Cursor создаст `Technical/` со скриптами в твоём проекте.
+Scripts are **not** shipped here — generate them in your project via Cursor. Paste the prompt from **`PROMPT_technical_scripts.md`** (in the setup-pack root) in the Agent chat; Cursor will create `Technical/` with the scripts.
 
-Если удобнее взять готовое — скопируй содержимое этой папки в **`Technical/`** своего проекта. Так Cursor и правила смогут вызывать скрипты по путям вида `Technical/upload_confluence_attachment.py`.
-
-## Зависимости
+## Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Или: `pip install requests`
+Or: `pip install requests`
 
 ## Confluence
 
-- Нужен файл **`Technical/.env`** с переменными:
-  - `CONFLUENCE_URL` (например `https://your-company.atlassian.net/wiki`)
-  - `CONFLUENCE_USERNAME`
-  - `CONFLUENCE_API_TOKEN`
+You need **`Technical/.env`** with:
 
-Шаблон `.env` лежит в корне setup-pack: **`env.example`** — скопируй его в `Technical/.env` и заполни.
+- `CONFLUENCE_URL` (e.g. `https://your-company.atlassian.net/wiki`)
+- `CONFLUENCE_USERNAME`
+- `CONFLUENCE_API_TOKEN`
 
-## Скрипты
+The `.env` template is in the setup-pack root: **`env.example`** — copy it to `Technical/.env` and fill in.
 
-| Скрипт | Назначение |
-|--------|------------|
-| `upload_confluence_attachment.py` | Загрузить файл во вложения страницы Confluence |
-| `download_confluence_attachment.py` | Скачать вложение со страницы |
-| `delete_confluence_attachment.py` | Удалить вложение (только по явному запросу) |
-| `confluence_upload_and_embed_image.py` | Загрузить картинку и встроить её в тело страницы |
+## Scripts the prompt creates
 
-Подробные примеры вызова — в docstring каждого скрипта.
+| Script                              | Purpose |
+|-------------------------------------|---------|
+| `upload_confluence_attachment.py`   | Upload a file as an attachment to a Confluence page |
+| `download_confluence_attachment.py`| Download an attachment from a page |
+| `delete_confluence_attachment.py`  | Delete an attachment (only when explicitly asked) |
+| `confluence_upload_and_embed_image.py` | Upload an image and embed it in the page body |
+
+Usage examples are in each script’s docstring after generation.

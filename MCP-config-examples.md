@@ -1,10 +1,10 @@
-# Примеры конфигурации MCP
+# MCP configuration examples
 
-Краткая шпаргалка: как может выглядеть **`~/.cursor/mcp.json`** при подключении нескольких серверов. Замените плейсхолдеры на свои значения.
+Short reference: what **`~/.cursor/mcp.json`** can look like when connecting several servers. Replace placeholders with your values.
 
 ---
 
-## Один сервер: только Atlassian (Confluence + Jira)
+## Single server: Atlassian only (Confluence + Jira)
 
 ```json
 {
@@ -27,9 +27,9 @@
 
 ---
 
-## Atlassian + Google Drive (OAuth) — опционально
+## Atlassian + Google Drive (OAuth) — optional
 
-*Обычно Google Drive подключают скриптами по API (например `drive_api.py`), а не MCP. Ниже — вариант с MCP для работы из чата Cursor.*
+*Google Drive is often connected via API scripts (e.g. `drive_api.py`) rather than MCP. Below is the MCP variant for use from Cursor chat.*
 
 ```json
 {
@@ -59,15 +59,15 @@
 }
 ```
 
-(Точное имя пакета и переменные см. в [mcp-google-drive](https://github.com/Longtran2404/mcp-google-drive) или в `Technical/MCP_GOOGLE_DRIVE_SETUP.md`.)
+(Exact package name and variables: see [mcp-google-drive](https://github.com/Longtran2404/mcp-google-drive) or `Technical/MCP_GOOGLE_DRIVE_SETUP.md`.)
 
 ---
 
-## Проект-специфичный MCP (например, Canva)
+## Project-specific MCP (e.g. Canva)
 
-В **корне проекта** можно создать **`.cursor/mcp.json`**. Тогда в этом проекте будут использоваться серверы из этого файла (или они дополнят глобальные — зависит от настроек Cursor).
+You can create **`.cursor/mcp.json`** in the **project root**. Then that project will use the servers from this file (or they extend the global ones — depends on Cursor settings).
 
-Пример только Canva (проект-специфичный конфиг):
+Example: Canva only (project-specific config):
 
 ```json
 {
@@ -82,12 +82,12 @@
 
 ---
 
-## Где лежит конфиг
+## Where config lives
 
-| Конфиг | Путь | Область |
-|--------|------|--------|
-| Глобальный MCP | `~/.cursor/mcp.json` | Все проекты |
-| Проектный MCP | `<корень проекта>/.cursor/mcp.json` | Только этот проект |
-| Креды для скриптов | `<проект>/Technical/.env` | Только скрипты в этом проекте (не коммитить) |
+| Config        | Path                          | Scope           |
+|---------------|-------------------------------|-----------------|
+| Global MCP    | `~/.cursor/mcp.json`          | All projects    |
+| Project MCP   | `<project root>/.cursor/mcp.json` | This project only |
+| Script creds | `<project>/Technical/.env`    | Scripts in this project only (do not commit) |
 
-После изменений в `mcp.json` перезапустите MCP: **Cursor Settings → Features → MCP → Restart Servers** или перезапустите Cursor.
+After changing `mcp.json`, restart MCP: **Cursor Settings → Features → MCP → Restart Servers** or restart Cursor.

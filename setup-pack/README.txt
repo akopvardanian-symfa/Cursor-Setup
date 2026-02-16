@@ -1,18 +1,22 @@
-Набор для настройки Cursor (интеграции за один раз)
-==================================================
+Cursor setup pack (integrations in one go)
+==========================================
+Repository: https://github.com/akopvardanian-symfa/Cursor-Setup
+Paste the repo link in the Agent chat — it will clone and run the steps from 00_START_HERE; no need to download manually.
 
-Содержимое:
-  00_START_HERE.md    — ГЛАВНЫЙ ПРОМПТ: начни с него
-  mcp.json.template  — шаблон для ~/.cursor/mcp.json
-  env.example        — шаблон для Technical/.env (скрипты Confluence)
-  technical/         — примеры скриптов Confluence (опционально; лучше генерировать по промпту)
-  PROMPT_technical_scripts.md — промпт: «сгенерируй скрипты Confluence в Technical/» (вставь в чат)
-  cursor-rules/      — универсальные правила Cursor для MCP (копировать в .cursor/rules/)
+Contents:
+  00_START_HERE.md    — MAIN PROMPT: start here
+  mcp.json.template   — template for ~/.cursor/mcp.json
+  env.example         — template for Technical/.env (Confluence scripts)
+  technical/          — reference only (README, requirements); scripts generated via prompt
+  PROMPT_technical_scripts.md — prompt: “generate Confluence scripts in Technical/” (paste in chat)
+  cursor-rules/       — general Cursor rules for MCP (copy to .cursor/rules/)
 
-Быстрый старт:
-  1. Распакуй setup-pack в свой проект (MyProject/setup-pack/) или открой как отдельную папку.
-  2. Открой папку проекта в Cursor (File → Open Folder).
-  3. Открой 00_START_HERE.md, скопируй промпт и вставь в Composer/Agent.
-  4. Cursor спросит, какие интеграции нужны — выбери (Confluence+Jira, Drive, Canva).
-  5. Cursor создаст конфиги (для Confluence+Jira при необходимости установит uv) и даст чек-лист.
-  6. Создай API-ключ в Atlassian (id.atlassian.com → Безопасность → API-токены → Создать → скопировать токен). В чате Cursor напиши: «Обнови конфиги: подставь эти данные» и вставь URL компании, email и API-токен — Cursor обновит mcp.json и Technical/.env. Перезапусти MCP (Settings → MCP → Restart Servers). Подробный гайд — в основном README гайда, раздел «Доделай вручную».
+Quick start:
+  Option A (recommended): In Cursor open any folder. Open Agent (Cmd+I). Paste in chat the link (https://github.com/akopvardanian-symfa/Cursor-Setup) and the prompt from the main guide README, section “Initial setup after install”, step 2 — the Agent will clone the repo and run all steps from 00_START_HERE.
+  Option B (repo already open in Cursor):
+  1. In Cursor open the repo folder (if not already).
+  2. Ensure Cursor has terminal access (allow when first prompted).
+  3. Open 00_START_HERE.md, copy the prompt and paste it in Agent.
+  4. Cursor will ask which integrations you need — choose (Confluence+Jira, Drive, Canva).
+  5. Cursor will create configs (for Confluence+Jira it will install uv if needed) and give a checklist.
+  6. Create an API token in Atlassian (id.atlassian.com → Security → API tokens → Create → copy token). In Cursor chat write: “Update configs: put these values in” and paste site URL, email, and API token — Cursor will update mcp.json and Technical/.env. Restart MCP (Settings → MCP → Restart Servers). Full details are in the main README, section “Manual step: Atlassian API token and config values”.
